@@ -1,5 +1,4 @@
 import type {Request, Response, NextFunction} from 'express';
-import {Types} from 'mongoose';
 import AliasCollection from '../alias/collection';
 
 /**
@@ -14,9 +13,7 @@ const isCurrentSessionAliasExists = async (req: Request, res: Response, next: Ne
     if (!alias) {
       req.session.aliasId = undefined;
       res.status(500).json({
-        error: {
-          aliasNotFound: 'Alias session was not recognized.'
-        }
+        error: 'Alias session was not recognized.'
       });
       return;
     }
@@ -34,9 +31,7 @@ const isValidAliasname = (req: Request, res: Response, next: NextFunction) => {
   const aliasnameRegex = /^\w+$/i;
   if (!aliasnameRegex.test(req.body.aliasname)) {
     res.status(400).json({
-      error: {
-        aliasname: 'Aliasname must be a nonempty alphanumeric string.'
-      }
+      error: 'Aliasname must be a nonempty alphanumeric string.'
     });
     return;
   }
@@ -62,7 +57,7 @@ const doesAccountWithAliasnameExist = async (req: Request, res: Response, next: 
   if (alias) {
     next();
   } else {
-    res.status(401).json({error: `Account with aliasname: ${aliasname} does not exist`});
+    res.status(404).json({error: `Account with aliasname: ${aliasname} does not exist`});
   }
 };
 
@@ -82,7 +77,7 @@ const doesAccountWithAliasIdExist = async (req: Request, res: Response, next: Ne
   if (alias) {
     next();
   } else {
-    res.status(401).json({error: `Account with aliasId: ${aliasId} does not exist`});
+    res.status(404).json({error: `Account with aliasId: ${aliasId} does not exist`});
   }
 };
 
@@ -102,7 +97,7 @@ const doesAccountWithParamAliasnameExist = async (req: Request, res: Response, n
   if (alias) {
     next();
   } else {
-    res.status(401).json({error: `Account with aliasname: ${aliasname} does not exist`});
+    res.status(404).json({error: `Account with aliasname: ${aliasname} does not exist`});
   }
 };
 
@@ -122,7 +117,7 @@ const doesAccountWithParamAliasIdExist = async (req: Request, res: Response, nex
   if (alias) {
     next();
   } else {
-    res.status(401).json({error: `Account with aliasId: ${aliasId} does not exist`});
+    res.status(404).json({error: `Account with aliasId: ${aliasId} does not exist`});
   }
 };
 
@@ -158,9 +153,7 @@ const doesAliasBelongToUser = async (req: Request, res: Response, next: NextFunc
 
   if (alias.userId.toString() !== req.session.userId) {
     res.status(403).json({
-      error: {
-        auth: 'This Alias does not belong to you.'
-      }
+      error: `The Alias: ${alias.aliasname} does not belong to you.`
     });
     return;
   }
@@ -176,9 +169,7 @@ const doesAliasBelongToUser = async (req: Request, res: Response, next: NextFunc
 const isAliasLoggedIn = (req: Request, res: Response, next: NextFunction) => {
   if (!req.session.aliasId) {
     res.status(403).json({
-      error: {
-        auth: 'You must be logged in to complete this action.'
-      }
+      error: 'You must be logged in to complete this action.'
     });
     return;
   }
@@ -217,9 +208,7 @@ const isAliasnameNotAlreadyInUse = async (req: Request, res: Response, next: Nex
   }
 
   res.status(409).json({
-    error: {
-      aliasnameAlreadyInUse: `Account with aliasname ${aliasname} already exists`
-    }
+    error: `Account with aliasname: ${aliasname} already exists`
   });
 };
 

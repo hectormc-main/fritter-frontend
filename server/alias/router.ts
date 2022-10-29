@@ -6,9 +6,6 @@ import * as userValidator from '../user/middleware';
 import * as aliasValidator from './middleware';
 import * as util from './util';
 import UserCollection from '../user/collection';
-import ProliferateCollection from '../proliferate/collection';
-import ReactionCollection from "../reaction/collection";
-import RejectionCollection from "../rejection/collection";
 
 const router = express.Router();
 

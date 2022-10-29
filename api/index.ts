@@ -7,6 +7,7 @@ import http from 'http';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import * as userValidator from '../server/user/middleware';
+import * as aliasValidator from '../server/alias/middleware';
 import {userRouter} from '../server/user/router';
 import {freetRouter} from '../server/freet/router';
 import MongoStore from 'connect-mongo';
@@ -74,6 +75,7 @@ app.use(session({
 
 // This makes sure that if a user is logged in, they still exist in the database
 app.use(userValidator.isCurrentSessionUserExists);
+app.use(aliasValidator.isCurrentSessionAliasExists)
 
 // Add routers from routes folder
 app.use('/api/users', userRouter);
