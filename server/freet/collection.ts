@@ -1,7 +1,8 @@
 import type {HydratedDocument, Types} from 'mongoose';
 import type {Freet} from './model';
 import FreetModel from './model';
-import UserCollection from '../user/collection';
+import AliasCollection from '../alias/collection';
+import ProliferateModel from '../proliferate/model';
 
 /**
  * This files contains a class that has the functionality to explore freets
@@ -54,12 +55,22 @@ class FreetCollection {
   /**
    * Get all the freets in by given author
    *
-   * @param {string} username - The username of author of the freets
+   * @param {string} aliasname - The aliasname of author of the freets
    * @return {Promise<HydratedDocument<Freet>[]>} - An array of all of the freets
    */
-  static async findAllByUsername(username: string): Promise<Array<HydratedDocument<Freet>>> {
-    const author = await UserCollection.findOneByUsername(username);
+  static async findAllByAliasname(aliasname: string): Promise<Array<HydratedDocument<Freet>>> {
+    const author = await AliasCollection.findOneByAliasname(aliasname);
     return FreetModel.find({authorId: author._id}).sort({dateModified: -1}).populate('authorId');
+  }
+
+  /**
+   * Get all the freets in by given author
+   *
+   * @param {string} authorId - The aliasId of author of the freets
+   * @return {Promise<HydratedDocument<Freet>[]>} - An array of all of the freets
+   */
+  static async findAllByAuthorId(authorId: Types.ObjectId | string): Promise<Array<HydratedDocument<Freet>>> {
+    return FreetModel.find({authorId}).sort({dateModified: -1}).populate('authorId');
   }
 
   /**
@@ -85,6 +96,7 @@ class FreetCollection {
    */
   static async deleteOne(freetId: Types.ObjectId | string): Promise<boolean> {
     const freet = await FreetModel.deleteOne({_id: freetId});
+    await ProliferateModel.deleteOne({contentId: freetId});
     return freet !== null;
   }
 
@@ -95,6 +107,7 @@ class FreetCollection {
    */
   static async deleteMany(authorId: Types.ObjectId | string): Promise<void> {
     await FreetModel.deleteMany({authorId});
+    // TODO delete all freets by this author
   }
 }
 
