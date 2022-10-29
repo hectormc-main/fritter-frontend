@@ -1,7 +1,7 @@
 import type {NextFunction, Request, Response} from 'express';
 import express from 'express';
 import FreetCollection from './collection';
-import * as userValidator from '../user/middleware';
+import * as aliasValidator from '../alias/middleware';
 import * as freetValidator from '../freet/middleware';
 import * as util from './util';
 
@@ -18,11 +18,11 @@ const router = express.Router();
 /**
  * Get freets by author.
  *
- * @name GET /api/freets?author=username
+ * @name GET /api/freets?author=aliasname
  *
- * @return {FreetResponse[]} - An array of freets created by user with username, author
+ * @return {FreetResponse[]} - An array of freets created by alias with aliasname, author
  * @throws {400} - If author is not given
- * @throws {404} - If no user has given author
+ * @throws {404} - If no alias has given author
  *
  */
 router.get(
@@ -39,10 +39,10 @@ router.get(
     res.status(200).json(response);
   },
   [
-    userValidator.isAuthorExists
+    aliasValidator.isAuthorExists
   ],
   async (req: Request, res: Response) => {
-    const authorFreets = await FreetCollection.findAllByUsername(req.query.author as string);
+    const authorFreets = await FreetCollection.findAllByAliasname(req.query.author as string);
     const response = authorFreets.map(util.constructFreetResponse);
     res.status(200).json(response);
   }
@@ -55,19 +55,19 @@ router.get(
  *
  * @param {string} content - The content of the freet
  * @return {FreetResponse} - The created freet
- * @throws {403} - If the user is not logged in
+ * @throws {403} - If the alias is not logged in
  * @throws {400} - If the freet content is empty or a stream of empty spaces
  * @throws {413} - If the freet content is more than 140 characters long
  */
 router.post(
   '/',
   [
-    userValidator.isUserLoggedIn,
+    aliasValidator.isAliasLoggedIn,
     freetValidator.isValidFreetContent
   ],
   async (req: Request, res: Response) => {
-    const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
-    const freet = await FreetCollection.addOne(userId, req.body.content);
+    const aliasId = (req.session.aliasId as string) ?? ''; // Will not be an empty string since its validated in isAliasLoggedIn
+    const freet = await FreetCollection.addOne(aliasId, req.body.content);
 
     res.status(201).json({
       message: 'Your freet was created successfully.',
@@ -82,14 +82,14 @@ router.post(
  * @name DELETE /api/freets/:id
  *
  * @return {string} - A success message
- * @throws {403} - If the user is not logged in or is not the author of
+ * @throws {403} - If the alias is not logged in or is not the author of
  *                 the freet
  * @throws {404} - If the freetId is not valid
  */
 router.delete(
   '/:freetId?',
   [
-    userValidator.isUserLoggedIn,
+    aliasValidator.isAliasLoggedIn,
     freetValidator.isFreetExists,
     freetValidator.isValidFreetModifier
   ],
@@ -108,7 +108,7 @@ router.delete(
  *
  * @param {string} content - the new content for the freet
  * @return {FreetResponse} - the updated freet
- * @throws {403} - if the user is not logged in or not the author of
+ * @throws {403} - if the alias is not logged in or not the author of
  *                 of the freet
  * @throws {404} - If the freetId is not valid
  * @throws {400} - If the freet content is empty or a stream of empty spaces
@@ -117,7 +117,7 @@ router.delete(
 router.patch(
   '/:freetId?',
   [
-    userValidator.isUserLoggedIn,
+    aliasValidator.isAliasLoggedIn,
     freetValidator.isFreetExists,
     freetValidator.isValidFreetModifier,
     freetValidator.isValidFreetContent
