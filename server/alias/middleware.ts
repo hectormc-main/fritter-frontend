@@ -169,7 +169,7 @@ const doesAliasBelongToUser = async (req: Request, res: Response, next: NextFunc
 const isAliasLoggedIn = (req: Request, res: Response, next: NextFunction) => {
   if (!req.session.aliasId) {
     res.status(403).json({
-      error: 'You must be logged in to complete this action.'
+      error: 'You must be logged in to an Alias complete this action.'
     });
     return;
   }
